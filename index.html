@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de juros abusivos | Seus juros estão altos demais?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Literata:opsz,wght@7..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F1EE; --surface:#FFFFFF; --ink:#1E1C19; --muted:#55514A; --line:#CFCAC0;
+  --gold:#A8823A; --gold-ink:#7A5B1D; --band:#000000; --band-ink:#D9B76A;
+  --verde:#2E8B57; --amarelo:#E0A21B; --vermelho:#C0392B; --erro:#A3362A;
+  --btn-bg:#1E1C19; --btn-ink:#FFFFFF; --whats:#1A7F45; --whats-ink:#FFFFFF;
+  --serif:"Literata", Georgia, "Times New Roman", serif;
+  --sans:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top, 0px);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141311; --surface:#1E1C19; --ink:#F0ECE4; --muted:#B3AB9F; --line:#423D35;
+    --gold:#CDA85A; --gold-ink:#DDBA70;
+    --verde:#4CB97A; --amarelo:#F0B533; --vermelho:#E8604F; --erro:#F08C7C;
+    --btn-bg:#D9B76A; --btn-ink:#14120F; --whats:#1A8648; --whats-ink:#FFFFFF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141311; --surface:#1E1C19; --ink:#F0ECE4; --muted:#B3AB9F; --line:#423D35;
+  --gold:#CDA85A; --gold-ink:#DDBA70;
+  --verde:#4CB97A; --amarelo:#F0B533; --vermelho:#E8604F; --erro:#F08C7C;
+  --btn-bg:#D9B76A; --btn-ink:#14120F; --whats:#1A8648; --whats-ink:#FFFFFF;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{background:var(--band); scroll-padding-top:env(safe-area-inset-top, 0px); -webkit-text-size-adjust:100%}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:1.25rem; line-height:1.5}
+.wrap{max-width:34rem; margin:0 auto; padding:0 1.25rem}
+[hidden]{display:none !important}
+
+.band{background:var(--band); color:var(--band-ink)}
+.band .wrap{padding-top:.95rem; padding-bottom:.95rem}
+.wordmark{font-family:var(--serif); font-weight:600; font-size:1.15rem}
+.wordmark small{font-family:var(--sans); font-weight:400; font-size:.85rem; margin-left:.4rem; opacity:.85}
+
+main .wrap{padding-top:1.75rem; padding-bottom:2.5rem; min-height:70vh}
+h1{font-family:var(--serif); font-weight:600; font-size:clamp(2rem, 8vw, 2.6rem); line-height:1.1; margin:0 0 .6rem}
+.lead{margin:0 0 2rem; color:var(--muted)}
+h2{font-family:var(--serif); font-weight:600; font-size:clamp(1.7rem, 6.8vw, 2.15rem); line-height:1.15; margin:0 0 .6rem; outline:none}
+.dica{color:var(--muted); margin:0 0 1.4rem; font-size:1.1rem}
+
+/* Progresso */
+.progresso{margin:0 0 1.5rem}
+.progresso p{margin:0 0 .5rem; font-size:1rem; font-weight:700; color:var(--muted)}
+.trilha{display:flex; gap:.4rem}
+.trilha i{flex:1; height:.45rem; border-radius:99px; background:var(--line)}
+.trilha i.feito{background:var(--gold)}
+
+/* Opções grandes */
+.opcoes{display:grid; gap:.75rem}
+.opcao{display:flex; align-items:center; gap:1rem; width:100%; min-height:5rem; padding:1rem 1.1rem; text-align:left; background:var(--surface); color:var(--ink); border:2px solid var(--line); border-radius:.75rem; font:inherit; cursor:pointer}
+.opcao:hover{border-color:var(--gold)}
+.opcao .ic{flex:none; display:grid; place-items:center; width:3rem; height:3rem; border-radius:50%; background:var(--bg); font-size:1.6rem; line-height:1}
+.opcao b{display:block; font-size:1.2rem; line-height:1.25}
+.opcao small{display:block; font-size:1rem; color:var(--muted); margin-top:.15rem; line-height:1.3}
+
+/* Campo de dinheiro */
+.dinheiro{display:flex; align-items:center; gap:.5rem; padding:.4rem 1.1rem; background:var(--surface); border:2px solid var(--line); border-radius:.75rem; margin:0 0 1rem}
+.dinheiro:focus-within{border-color:var(--gold); box-shadow:0 0 0 4px rgba(168,130,58,.28)}
+.dinheiro span{font-size:1.6rem; font-weight:700; color:var(--muted)}
+.dinheiro input{flex:1; min-width:0; border:0; background:transparent; color:var(--ink); font:inherit; font-size:2.2rem; font-weight:700; padding:.35rem 0; outline:none}
+.dinheiro input::placeholder{color:var(--line)}
+.dinheiro em{font-style:normal; font-size:1.1rem; color:var(--muted)}
+
+.numeros{display:grid; grid-template-columns:repeat(3, 1fr); gap:.6rem; margin:0 0 .9rem}
+.numeros button{min-height:4rem; background:var(--surface); color:var(--ink); border:2px solid var(--line); border-radius:.75rem; font:inherit; font-size:1.5rem; font-weight:700; cursor:pointer}
+.numeros button:hover{border-color:var(--gold)}
+.outro{width:100%; min-height:3.5rem; background:transparent; color:var(--ink); border:2px dashed var(--line); border-radius:.75rem; font:inherit; font-size:1.15rem; cursor:pointer; margin:0 0 1rem}
+
+.erro{color:var(--erro); font-weight:700; margin:0 0 1rem}
+.erro:empty{display:none}
+
+.btn{display:flex; align-items:center; justify-content:center; gap:.6rem; width:100%; min-height:3.75rem; padding:.9rem 1.25rem; border:2px solid var(--btn-bg); border-radius:.75rem; background:var(--btn-bg); color:var(--btn-ink); font:inherit; font-size:1.25rem; font-weight:700; text-decoration:none; text-align:center; line-height:1.25; cursor:pointer}
+.btn + .btn{margin-top:.75rem}
+.btn.whats{background:var(--whats); border-color:var(--whats); color:var(--whats-ink)}
+.btn.leve{background:transparent; color:var(--ink); border-color:var(--ink)}
+.btn svg{width:1.5rem; height:1.5rem; flex:none}
+.voltar{display:block; margin:1.25rem auto 0; padding:.75rem 1.25rem; background:none; border:0; color:var(--ink); font:inherit; font-size:1.1rem; font-weight:700; text-decoration:underline; text-underline-offset:.2em; cursor:pointer}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--gold); outline-offset:3px}
+.opcao:focus-visible,.numeros button:focus-visible{outline-offset:2px}
+
+/* Resultado: semáforo */
+.semaforo{display:flex; justify-content:center; gap:.9rem; margin:0 0 1.5rem}
+.luz{display:flex; flex-direction:column; align-items:center; gap:.45rem; width:6rem; opacity:.28; transition:opacity .5s ease}
+.luz i{display:block; width:3.6rem; height:3.6rem; border-radius:50%; transform:scale(.85); transition:transform .5s cubic-bezier(.2,.9,.3,1.4), box-shadow .5s ease}
+.luz.verde i{background:var(--verde)} .luz.amarela i{background:var(--amarelo)} .luz.vermelha i{background:var(--vermelho)}
+.luz span{font-size:.95rem; font-weight:700; text-align:center; line-height:1.2}
+.luz.acesa{opacity:1}
+.luz.acesa i{transform:scale(1.05); box-shadow:0 0 0 6px var(--bg), 0 0 0 9px currentColor}
+.luz.verde{color:var(--verde)} .luz.amarela{color:var(--amarelo)} .luz.vermelha{color:var(--vermelho)}
+@media (prefers-reduced-motion: reduce){ .luz, .luz i{transition:none} }
+
+.resultado h2{text-align:center}
+.destaque{text-align:center; margin:1rem 0 1.1rem; padding:1.1rem 1rem; background:var(--surface); border:2px solid var(--line); border-radius:.75rem}
+.destaque strong{display:block; font-family:var(--serif); font-weight:600; font-size:clamp(2.4rem, 11vw, 3.1rem); line-height:1.05}
+.destaque span{display:block; margin-top:.35rem; font-size:1.1rem; color:var(--muted)}
+.explica{margin:0 0 1.5rem}
+
+details{margin-top:1.75rem; border-top:2px solid var(--line); border-bottom:2px solid var(--line); padding:1rem 0}
+summary{cursor:pointer; font-weight:700; font-size:1.1rem}
+details dl{margin:1rem 0 0}
+details dl div{display:flex; justify-content:space-between; gap:1rem; padding:.55rem 0; border-bottom:1px solid var(--line); font-size:1.05rem}
+details dt{color:var(--muted)}
+details dd{margin:0; font-weight:700; text-align:right}
+details p{font-size:1rem; color:var(--muted); margin:1rem 0 0}
+
+footer{background:var(--bg)}
+footer .wrap{padding-top:.5rem; padding-bottom:2rem; font-size:.95rem; color:var(--muted)}
+footer p{margin:0 0 .7rem}
+.barra{height:9px; background:linear-gradient(var(--gold) 0 3px, var(--band) 3px 100%)}
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="wrap"><span class="wordmark">Calculadora de juros abusivos</span></div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div id="intro">
+      <h1>Seus juros estão altos demais?</h1>
+      <p class="lead">Responda 4 perguntas rápidas e descubra.</p>
+    </div>
+
+    <div class="progresso" id="progresso" aria-live="polite">
+      <p id="prog-texto">Pergunta 1 de 4</p>
+      <div class="trilha" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <!-- 1. Tipo -->
+    <section class="passo" data-passo="tipo" aria-labelledby="t-tipo">
+      <h2 id="t-tipo" tabindex="-1">Que tipo de dívida é?</h2>
+      <p class="dica">Toque em uma opção.</p>
+      <div class="opcoes">
+        <button type="button" class="opcao" data-tipo="veiculo"><span class="ic" aria-hidden="true">🚗</span><span><b>Financiamento de carro ou moto</b></span></button>
+        <button type="button" class="opcao" data-tipo="consignado"><span class="ic" aria-hidden="true">💼</span><span><b>Empréstimo consignado</b><small>descontado do salário ou da aposentadoria</small></span></button>
+        <button type="button" class="opcao" data-tipo="pessoal"><span class="ic" aria-hidden="true">🏦</span><span><b>Empréstimo pessoal</b><small>pago por boleto ou débito na conta</small></span></button>
+        <button type="button" class="opcao" data-tipo="cartao"><span class="ic" aria-hidden="true">💳</span><span><b>Cartão de crédito ou cheque especial</b></span></button>
+      </div>
+    </section>
+
+    <!-- 2. Valor -->
+    <section class="passo" data-passo="valor" aria-labelledby="t-valor" hidden>
+      <form id="f-valor" novalidate>
+        <h2 id="t-valor" tabindex="-1">Quanto você pegou emprestado?</h2>
+        <p class="dica" id="d-valor"></p>
+        <label class="dinheiro"><span aria-hidden="true">R$</span><input id="valor" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="0" aria-labelledby="t-valor" aria-describedby="d-valor"></label>
+        <p class="erro" role="alert"></p>
+        <button class="btn" type="submit">Continuar</button>
+        <button class="voltar" type="button" data-voltar>Voltar</button>
+      </form>
+    </section>
+
+    <!-- 3. Parcela -->
+    <section class="passo" data-passo="parcela" aria-labelledby="t-parcela" hidden>
+      <form id="f-parcela" novalidate>
+        <h2 id="t-parcela" tabindex="-1">Quanto você paga por mês?</h2>
+        <p class="dica" id="d-parcela">É o valor de cada parcela. Não precisa colocar os centavos.</p>
+        <label class="dinheiro"><span aria-hidden="true">R$</span><input id="parcela" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="0" aria-labelledby="t-parcela" aria-describedby="d-parcela"></label>
+        <p class="erro" role="alert"></p>
+        <button class="btn" type="submit">Continuar</button>
+        <button class="voltar" type="button" data-voltar>Voltar</button>
+      </form>
+    </section>
+
+    <!-- 4. Prazo -->
+    <section class="passo" data-passo="prazo" aria-labelledby="t-prazo" hidden>
+      <h2 id="t-prazo" tabindex="-1">Em quantas parcelas?</h2>
+      <p class="dica">O total do contrato, e não só as que faltam pagar.</p>
+      <div class="numeros" id="numeros"></div>
+      <button type="button" class="outro" id="btn-outro">Outro número</button>
+      <form id="f-prazo" novalidate hidden>
+        <label class="dinheiro"><input id="prazo" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="0" aria-label="Número de parcelas"><em>parcelas</em></label>
+        <button class="btn" type="submit">Ver o resultado</button>
+      </form>
+      <p class="erro" id="erro-prazo" role="alert"></p>
+      <button class="voltar" type="button" data-voltar>Voltar</button>
+    </section>
+
+    <!-- Resultado -->
+    <section class="passo resultado" data-passo="resultado" aria-labelledby="veredito" hidden>
+      <div class="semaforo" aria-hidden="true">
+        <div class="luz verde"><i></i><span>Normal</span></div>
+        <div class="luz amarela"><i></i><span>Um pouco alto</span></div>
+        <div class="luz vermelha"><i></i><span>Muito alto</span></div>
+      </div>
+      <h2 id="veredito" tabindex="-1"></h2>
+      <div class="destaque" id="destaque"><strong id="destaque-valor"></strong><span>a mais por mês do que a média dos bancos</span></div>
+      <p class="explica" id="explica"></p>
+      <a class="btn whats" id="btn-whats" target="_blank" rel="noopener"></a>
+      <a class="btn leve" id="btn-ligar">Ligar agora</a>
+
+      <details>
+        <summary>Ver os números</summary>
+        <dl>
+          <div><dt>Seus juros</dt><dd id="n-sua"></dd></div>
+          <div><dt>Média dos bancos</dt><dd id="n-media"></dd></div>
+          <div><dt>Sua parcela</dt><dd id="n-parcela"></dd></div>
+          <div><dt>Parcela na média</dt><dd id="n-parcela-media"></dd></div>
+        </dl>
+        <p>Comparamos seus juros com a média que o Banco Central divulgou para esse tipo de dívida em setembro de 2026. A Justiça costuma olhar com mais atenção quando os juros passam de 1,5 vez a média, mas cada caso é analisado de forma individual.</p>
+        <p>Os juros foram calculados a partir das parcelas, por isso podem incluir seguros e tarifas cobrados junto.</p>
+      </details>
+
+      <button class="voltar" type="button" id="refazer">Fazer de novo</button>
+    </section>
+
+    <!-- Cartão e cheque especial -->
+    <section class="passo" data-passo="cartao" aria-labelledby="t-cartao" hidden>
+      <h2 id="t-cartao" tabindex="-1">Para cartão e cheque especial, a gente faz a conta com você.</h2>
+      <p class="explica">Os juros dessas dívidas mudam todo mês, então a conta precisa da sua fatura ou do seu extrato. Mande uma mensagem e a gente vê se dá para reduzir.</p>
+      <a class="btn whats" id="btn-whats-cartao" target="_blank" rel="noopener"></a>
+      <a class="btn leve" id="btn-ligar-cartao">Ligar agora</a>
+      <button class="voltar" type="button" data-voltar>Voltar</button>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Resultado aproximado, feito com as médias do Banco Central de setembro de 2026. Não substitui a análise do contrato por um profissional.</p>
+    <p>Nenhum dado é enviado. Só você vê o que digitou.</p>
+  </div>
+  <div class="barra"></div>
+</footer>
+
+<script>
+// ===== Configuração =====
+const WHATSAPP = "5571991240388";   // DDI + DDD + número, só dígitos
+const TELEFONE = "+5571991240388";  // número para o botão "Ligar"
+// Médias do Banco Central, % ao ano (crédito livre, pessoas físicas). Atualizar todo mês.
+const REF = { mes: "setembro de 2026", curto: "set/2026" };
+const MOD = {
+  veiculo:    { nome: "Financiamento de carro ou moto", aa: 26.2,
+                dica: "É o preço do carro ou da moto menos a entrada. Pode ser um valor aproximado, sem centavos." },
+  consignado: { nome: "Empréstimo consignado", aa: 28.5,
+                dica: "É o valor que caiu na sua conta. Pode ser um valor aproximado, sem centavos." },
+  pessoal:    { nome: "Empréstimo pessoal", aa: 110.9,
+                dica: "É o valor que caiu na sua conta. Pode ser um valor aproximado, sem centavos." },
+  cartao:     { nome: "Cartão de crédito ou cheque especial", direto: true }
+};
+const PRAZOS = [12, 24, 36, 48, 60, 72];
+
+// ===== Utilidades =====
+const $ = id => document.getElementById(id);
+const nf = d => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = x => nf(2).format(x * 100) + "%";
+const reais = x => "R$ " + Math.round(x).toLocaleString("pt-BR");
+const aaParaAm = aa => Math.pow(1 + aa, 1 / 12) - 1;
+const reduz = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const ICONE_WHATS = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>';
+
+function parcelaPelaTaxa(pv, i, n) { return i === 0 ? pv / n : pv * i / (1 - Math.pow(1 + i, -n)); }
+function taxaPelasParcelas(pv, pmt, n) {
+  let lo = 0, hi = 1;
+  if (parcelaPelaTaxa(pv, hi, n) < pmt) return NaN;
+  for (let k = 0; k < 200; k++) { const m = (lo + hi) / 2; if (parcelaPelaTaxa(pv, m, n) > pmt) hi = m; else lo = m; }
+  return (lo + hi) / 2;
+}
+function linkWhats(texto) { return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`; }
+
+// ===== Navegação entre perguntas =====
+const ORDEM = ["tipo", "valor", "parcela", "prazo"];
+const estado = { tipo: null, valor: 0, parcela: 0, prazo: 0 };
+let historico = [];
+
+function ir(passo, voltando) {
+  const atual = document.querySelector(".passo:not([hidden])");
+  if (!voltando && atual && atual.dataset.passo !== passo) historico.push(atual.dataset.passo);
+  document.querySelectorAll(".passo").forEach(s => s.hidden = s.dataset.passo !== passo);
+  document.querySelectorAll(".erro").forEach(e => e.textContent = "");
+  $("intro").hidden = passo !== "tipo";
+  const idx = ORDEM.indexOf(passo);
+  $("progresso").hidden = idx < 0;
+  if (idx >= 0) {
+    $("prog-texto").textContent = `Pergunta ${idx + 1} de 4`;
+    document.querySelectorAll(".trilha i").forEach((b, j) => b.classList.toggle("feito", j <= idx));
+  }
+  window.scrollTo({ top: 0, behavior: "auto" });
+  const campo = { valor: $("valor"), parcela: $("parcela") }[passo];
+  const titulo = document.querySelector(`.passo[data-passo="${passo}"] h2`);
+  setTimeout(() => (campo || titulo).focus({ preventScroll: true }), 30);
+}
+document.querySelectorAll("[data-voltar]").forEach(b => b.addEventListener("click", () => ir(historico.pop() || "tipo", true)));
+
+// Pergunta 1
+document.querySelectorAll(".opcao").forEach(b => b.addEventListener("click", () => {
+  estado.tipo = b.dataset.tipo;
+  if (MOD[estado.tipo].direto) { mostrarCartao(); ir("cartao"); return; }
+  $("d-valor").textContent = MOD[estado.tipo].dica;
+  $("t-valor").textContent = estado.tipo === "veiculo" ? "Quanto você financiou?" : "Quanto você pegou emprestado?";
+  ir("valor");
+}));
+
+// Campos de dinheiro: só números, com pontos de milhar
+function mascara(el, max) {
+  el.addEventListener("input", () => {
+    const d = el.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, max);
+    el.value = d ? Number(d).toLocaleString("pt-BR") : "";
+  });
+}
+const ler = el => Number(el.value.replace(/\D/g, "")) || 0;
+mascara($("valor"), 8); mascara($("parcela"), 7); mascara($("prazo"), 3);
+
+function erroEm(form, msg, campo) { form.querySelector(".erro").textContent = msg; campo.focus(); }
+
+$("f-valor").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = ler($("valor"));
+  if (v < 100) return erroEm(e.target, "Digite o valor que você pegou emprestado.", $("valor"));
+  estado.valor = v;
+  ir("parcela");
+});
+$("f-parcela").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = ler($("parcela"));
+  if (v < 1) return erroEm(e.target, "Digite o valor de cada parcela.", $("parcela"));
+  estado.parcela = v;
+  ir("prazo");
+});
+
+// Pergunta 4
+PRAZOS.forEach(n => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = n; b.setAttribute("aria-label", `${n} parcelas`);
+  b.addEventListener("click", () => concluir(n));
+  $("numeros").appendChild(b);
+});
+$("btn-outro").addEventListener("click", () => {
+  $("btn-outro").hidden = true; $("f-prazo").hidden = false; $("prazo").focus();
+});
+$("f-prazo").addEventListener("submit", e => { e.preventDefault(); concluir(ler($("prazo"))); });
+
+function concluir(n) {
+  const erro = msg => { $("erro-prazo").textContent = msg; };
+  if (!(n >= 1 && n <= 420)) return erro("Digite o número de parcelas.");
+  const { valor, parcela } = estado;
+  if (parcela * n <= valor) return erro("Com esses números, a soma das parcelas fica menor que o valor emprestado. Volte e confira os valores.");
+  const am = taxaPelasParcelas(valor, parcela, n);
+  if (!isFinite(am)) return erro("Esses números parecem não bater. Volte e confira o valor emprestado e a parcela.");
+  estado.prazo = n;
+  mostrarResultado(am);
+  ir("resultado");
+}
+
+// ===== Resultado =====
+function mostrarResultado(am) {
+  const m = MOD[estado.tipo];
+  const media = aaParaAm(m.aa / 100);
+  const razao = am / media;
+  const cat = razao <= 1.0005 ? "verde" : (razao <= 1.5 ? "amarela" : "vermelha");
+  const pMedia = parcelaPelaTaxa(estado.valor, media, estado.prazo);
+  const difMes = estado.parcela - pMedia;
+  const difTotal = difMes * estado.prazo;
+
+  document.querySelectorAll(".luz").forEach(l => l.classList.remove("acesa"));
+  setTimeout(() => document.querySelector(`.luz.${cat}`).classList.add("acesa"), reduz ? 0 : 250);
+
+  const txt = {
+    verde: {
+      titulo: "Seus juros estão normais.",
+      explica: "Você paga parecido com o que os bancos cobram de outras pessoas nesse tipo de dívida. Se tiver alguma dúvida sobre o contrato, é só chamar.",
+      botao: "Tirar uma dúvida no WhatsApp"
+    },
+    amarela: {
+      titulo: "Seus juros estão um pouco altos.",
+      explica: `No contrato todo, isso dá cerca de ${reais(difTotal)}. Está acima da média, mas ainda dentro do que a Justiça costuma aceitar. Vale conferir se há tarifas ou seguros cobrados a mais.`,
+      botao: "Quero saber se dá para reduzir"
+    },
+    vermelha: {
+      titulo: "Seus juros estão muito altos.",
+      explica: `No contrato todo, isso pode chegar a ${reais(difTotal)}. Em casos assim, é possível pedir a revisão dos juros. Mande uma mensagem e a gente analisa o seu contrato.`,
+      botao: "Quero reduzir meus juros"
+    }
+  }[cat];
+
+  $("veredito").textContent = txt.titulo;
+  $("destaque").hidden = cat === "verde";
+  $("destaque-valor").textContent = reais(difMes);
+  $("explica").textContent = txt.explica;
+
+  const msg = [
+    "Olá! Usei a calculadora de juros do site.",
+    `Tipo de dívida: ${m.nome}`,
+    `Peguei ${reais(estado.valor)} em ${estado.prazo} parcelas de ${reais(estado.parcela)}.`,
+    `Meus juros: ${pct(am)} ao mês. Média do Banco Central (${REF.curto}): ${pct(media)} ao mês.`,
+    "Quero ver se dá para reduzir meus juros."
+  ].join("\n");
+  const w = $("btn-whats");
+  w.href = linkWhats(msg);
+  w.innerHTML = ICONE_WHATS + txt.botao;
+  $("btn-ligar").href = "tel:" + TELEFONE;
+
+  $("n-sua").textContent = pct(am) + " ao mês";
+  $("n-media").textContent = pct(media) + " ao mês";
+  $("n-parcela").textContent = reais(estado.parcela);
+  $("n-parcela-media").textContent = reais(pMedia);
+}
+
+function mostrarCartao() {
+  const w = $("btn-whats-cartao");
+  w.href = linkWhats("Olá! Quero ver se dá para reduzir os juros do meu cartão de crédito ou cheque especial.");
+  w.innerHTML = ICONE_WHATS + "Quero reduzir meus juros";
+  $("btn-ligar-cartao").href = "tel:" + TELEFONE;
+}
+
+$("refazer").addEventListener("click", () => {
+  ["valor", "parcela", "prazo"].forEach(id => $(id).value = "");
+  $("btn-outro").hidden = false; $("f-prazo").hidden = true;
+  historico = [];
+  ir("tipo", true);
+});
+</script>
+</body>
+</html>
