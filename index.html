@@ -7,6 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Literata:opsz,wght@7..72,600&display=swap" rel="stylesheet">
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
 :root{
   --bg:#F1F1EE; --surface:#FFFFFF; --ink:#1E1C19; --muted:#55514A; --line:#CFCAC0;
@@ -236,7 +241,7 @@ footer p{margin:0 0 .7rem}
 <footer>
   <div class="wrap">
     <p>Resultado aproximado, feito com as médias do Banco Central de setembro de 2026. Não substitui a análise do contrato por um profissional.</p>
-    <p>Nenhum dado é enviado. Só você vê o que digitou.</p>
+    <p>Os valores que você digita não são enviados. Contamos apenas visitas e cliques, de forma anônima.</p>
   </div>
   <div class="barra"></div>
 </footer>
@@ -275,6 +280,8 @@ function taxaPelasParcelas(pv, pmt, n) {
   return (lo + hi) / 2;
 }
 function linkWhats(texto) { return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`; }
+// Medição anônima: só o tipo de dívida e a faixa do resultado, nunca os valores digitados
+function evento(nome, dados) { try { window.va && window.va("event", { name: nome, data: dados }); } catch (e) {} }
 
 // ===== Navegação entre perguntas =====
 const ORDEM = ["tipo", "valor", "parcela", "prazo"];
@@ -303,6 +310,7 @@ document.querySelectorAll("[data-voltar]").forEach(b => b.addEventListener("clic
 // Pergunta 1
 document.querySelectorAll(".opcao").forEach(b => b.addEventListener("click", () => {
   estado.tipo = b.dataset.tipo;
+  evento("Tipo escolhido", { tipo: estado.tipo });
   if (MOD[estado.tipo].direto) { mostrarCartao(); ir("cartao"); return; }
   $("d-valor").textContent = MOD[estado.tipo].dica;
   $("t-valor").textContent = estado.tipo === "veiculo" ? "Quanto você financiou?" : "Quanto você pegou emprestado?";
@@ -369,6 +377,8 @@ function mostrarResultado(am) {
   const pMedia = parcelaPelaTaxa(estado.valor, media, estado.prazo);
   const difMes = estado.parcela - pMedia;
   const difTotal = difMes * estado.prazo;
+  estado.faixa = cat;
+  evento("Resultado", { tipo: estado.tipo, faixa: cat });
 
   document.querySelectorAll(".luz").forEach(l => l.classList.remove("acesa"));
   setTimeout(() => document.querySelector(`.luz.${cat}`).classList.add("acesa"), reduz ? 0 : 250);
@@ -420,6 +430,12 @@ function mostrarCartao() {
   w.innerHTML = ICONE_WHATS + "Quero reduzir meus juros";
   $("btn-ligar-cartao").href = "tel:" + TELEFONE;
 }
+
+// Cliques de contato (medição)
+$("btn-whats").addEventListener("click", () => evento("Clique WhatsApp", { tela: "resultado", tipo: estado.tipo, faixa: estado.faixa }));
+$("btn-ligar").addEventListener("click", () => evento("Clique Ligar", { tela: "resultado", tipo: estado.tipo, faixa: estado.faixa }));
+$("btn-whats-cartao").addEventListener("click", () => evento("Clique WhatsApp", { tela: "cartao", tipo: "cartao" }));
+$("btn-ligar-cartao").addEventListener("click", () => evento("Clique Ligar", { tela: "cartao", tipo: "cartao" }));
 
 $("refazer").addEventListener("click", () => {
   ["valor", "parcela", "prazo"].forEach(id => $(id).value = "");
